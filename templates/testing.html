@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  DO API Testing
+</h1>
+<form action="/create" method="post">
+  <button name="forwardBtn" type="submit">Create</button>
+</form>
+<form action="/destroy" method="post">
+  <button name="forwardBtn" type="submit">Destroy</button>
+</form>
+Status : {{ status }}
+{% endblock %}

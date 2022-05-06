@@ -60,3 +60,8 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+@auth.route('/testing')
+@login_required
+def testing():
+    return render_template('testing.html')
