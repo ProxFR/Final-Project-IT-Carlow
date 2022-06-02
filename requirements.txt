@@ -1,0 +1,7 @@
+Flask==2.1.2
+Flask_Login==0.6.1
+Flask_SQLAlchemy==2.5.1
+python_digitalocean==1.17.0
+redis==4.2.2
+Werkzeug==2.1.2
+humanfriendly==10.0

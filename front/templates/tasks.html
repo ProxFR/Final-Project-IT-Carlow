@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Tasks</h1>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#table').DataTable();
+        });
+    </script>
+    <style>
+        .wrapper {
+            width: 1200px;
+        }
+    </style>
+</head>
+
+<table id="table" class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Task name</th>
+            <th>Type</th>
+            <th>Hash</th>
+            <th>Plaintext</th>
+            <th>Status</th>
+            <th>Time spent</th>
+            <th>Result</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.id }}</td>
+            <td>{{ task.task_name }}</td>
+            <td>{{ task.hash_type }}</td>
+            <td>{{ task.hash }}</td>
+            {% if task.plaintext != "---" %}
+            <td><b>{{ task.plaintext }}</b></td>
+            {% else %}
+            <td>{{ task.plaintext }}</td>
+            {% endif %}
+            <td>{{ task.status }}</td>
+            <td>{{ task.time_spent }}</td>
+            {% if task.result == "OK" %}
+            <td style="color: green;"><b>{{ task.result }}</b></td>
+            {% elif task.result == "FAILED" %}
+            <td style="color: red;"><b>{{ task.result }}</b></td>
+            {% else %}
+            <td>{{ task.result }}</td>
+            {% endif %}
+            <td>
+                <form action="tasks/delete/{{ task.id }}" method="post">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

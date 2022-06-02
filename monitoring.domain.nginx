@@ -1,0 +1,89 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name monitoring.exemple.com www.monitoring.exemple.com;
+    return 301 https://monitoring.exemple.com$request_uri;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name admin.exemple.com;
+    return 301 https://admin.exemple.com$request_uri;
+}
+
+server {
+    listen 443 http2 ssl;
+    listen [::]:443 http2 ssl;
+    server_name admin.exemple.com;
+    ssl_certificate /etc/letsencrypt/live/exemple.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/exemple.com/privkey.pem;
+
+    location / {
+        proxy_set_header HOST $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://127.0.0.1:8000/;
+    }
+}
+
+server {
+    listen 443 http2 ssl;
+    listen [::]:443 http2 ssl;
+    server_name www.monitoring.exemple.com;
+    ssl_certificate /etc/letsencrypt/live/exemple.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/exemple.com/privkey.pem;
+    return 301 https://monitoring.exemple.com$request_uri;
+}
+
+server {
+    listen 443 http2 ssl;
+    listen [::]:443 http2 ssl;
+    server_name monitoring.exemple.com;
+    ssl_certificate /etc/letsencrypt/live/exemple.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/exemple.com/privkey.pem;
+
+    location / {
+      return 301 /grafana;
+    }
+
+    location /grafana/ {
+        proxy_set_header HOST $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://127.0.0.1:3000/;
+    }
+
+    # Proxy Grafana Live WebSocket connections.
+    location /grafana/api/live {
+      rewrite  ^/grafana/(.*)  /$1 break;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_set_header Host $http_host;
+      proxy_pass http://127.0.0.1:3000/;
+    }
+
+    location /prometheus/ {
+        proxy_set_header HOST $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://127.0.0.1:9090/;
+    }
+
+    location /loki/ {
+        proxy_set_header HOST $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_pass http://127.0.0.1:3100/;
+    }
+}
+

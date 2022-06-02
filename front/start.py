@@ -1,11 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+import os
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 
 def create_app():
+    print("entering create_app")
+    template_dir = os.path.abspath("./front/templates")
     app = Flask(__name__)
 
     app.config['SECRET_KEY'] = '94?qny8FMoc!76jM'
@@ -17,7 +20,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    from .models import User
+    from front.models import User
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -25,11 +28,17 @@ def create_app():
         return User.query.get(int(user_id))
 
     # blueprint for auth routes in our app
-    from .auth import auth as auth_blueprint
+    from front.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
     # blueprint for non-auth parts of app
-    from .main import main as main_blueprint
+    from front.routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    return app
+    # blueprint for API routes
+    from front.api import api as api_blueprint
+    app.register_blueprint(api_blueprint)
+
+    #return app
+    print("starting app")
+    app.run(host='0.0.0.0', port='8000', debug=True)

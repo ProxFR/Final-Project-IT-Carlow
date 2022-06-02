@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<!--Auto refresh every 3 seconds-->
+<meta http-equiv="refresh" content="3">
+
+<style>
+    .wrapper {
+        width: 900px;
+    }
+</style>
+
+<div class="row">
+    {% for worker in workers %}
+    <div class="col-sm-4" style="margin-bottom: 24px;">
+        <div class="card">
+            <form method="POST" action="/api/destroy/{{ worker.instance_name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ worker.instance_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ worker.internal_ip }}</h6>
+                    <p class="card-text"><i>{{ worker.task_wordlist }}</i><br><b>{{ worker.task_status }}</b></p>
+                    {% if worker.instance_status == "Creating" %}
+                    <div class="progress" style="margin-bottom: 16px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" id="progress-bar"
+                            style="width: 100%;">Creating</div>
+                    </div>
+                    {% else %}
+                    <div class="progress" style="margin-bottom: 16px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated " id="progress-bar"
+                            style="width: {{ worker.task_progression }}%;">{{ worker.task_progression }}%</div>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <button type="submit" style="width: 45%;" class="btn btn-outline-danger float-">Destroy</button>
+                    </div>                
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

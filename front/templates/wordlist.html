@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Wordlist Generation</h1>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#table').DataTable();
+        });
+    </script>
+    <style>
+        .wrapper {
+            width: 1000px;
+        }
+    </style>
+</head>
+
+<div class="mb-5">
+    <table id="table" class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Link</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for wordlist in wordlists %}
+            <tr>
+                <td>{{ wordlist.id }}</td>
+                <td>{{ wordlist.name }}</td>
+                <td>{{ wordlist.url }}</td>
+                <td>
+                    <form action="wordlist/delete/{{ wordlist.id }}" method="post">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2>Add wordlist</h2>
+
+<form action="/wordlist" method="post" class="row g-3">
+    <div class="col-md-3">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-control" name="name">
+    </div>
+    <div class="col-md-9">
+        <label class="form-label">Link</label>
+        <input type="url" class="form-control" name="url">
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Insert</button>
+    </div>
+</form>
+
+{% endblock %}

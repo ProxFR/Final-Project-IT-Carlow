@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<head>
+  <script type='text/javascript'>
+    function addFields() {
+      // Generate a dynamic number of inputs
+      var number = document.getElementById("range").value;
+      // Get the element where the inputs will be added to
+      var container = document.getElementById("container");
+
+      var options_str = "";
+      "{% for wordlist in wordlists %}"
+      options_str += '<option value="' + "{{ wordlist.name }}" + '">' + "{{ wordlist.name }}" + '</option>';
+      "{% endfor %}"
+
+      // Remove every children it had before
+      while (container.hasChildNodes()) {
+        container.removeChild(container.lastChild);
+      }
+      for (i = 1; i <= number; i++) {
+        let input = document.createElement("input");
+        input.type = "text";
+        input.name = "Worker " + i;
+
+        let col = document.createElement('div')
+        col.className = 'col-sm-4'
+        col.style = 'margin-bottom: 24px;'
+
+        let card = document.createElement('div')
+        card.className = 'card'
+
+        let cardBody = document.createElement('div')
+        cardBody.className = 'card-body'
+
+        let title = document.createElement('h5')
+        title.innerText = input.name;
+        title.className = 'card-title';
+
+        let subtitle = document.createElement('h6')
+        subtitle.innerText = 's-1vcpu-1gb';
+        subtitle.className = 'card-subtitle mb-2 text-muted';
+
+        let formSelect = document.createElement('select')
+        formSelect.className = 'form-select'
+        formSelect.innerHTML = options_str;
+        formSelect.name = "select" + i;
+
+        container.appendChild(col);
+        col.appendChild(card);
+        card.appendChild(cardBody);
+        cardBody.appendChild(title);
+        cardBody.appendChild(subtitle);
+        cardBody.appendChild(formSelect);
+
+      }
+      let buttonMB = document.createElement('div')
+      buttonMB.className = "mb-3"
+
+      let button = document.createElement('button')
+      button.className = "btn btn-primary"
+      button.type = "submit"
+      button.innerText = "Create"
+
+      container.appendChild(buttonMB)
+      buttonMB.appendChild(button)
+    }
+  </script>
+</head>
+
+<h1 class="title">
+  Attack
+</h1>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert alert-danger" role="alert">
+  {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+<form action="/api/create" method="post">
+  <div class="mb-3">
+    <label class="form-label">Task name</label>
+    <input type="text" name="task-name" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Hash type</label>
+    <select name="hash-type" class="form-select" required>
+      <option value="" selected>Select a hash type</option>
+      {% for type in hash_type %}
+      <option value="{{ type.type_name }}">{{ type.type_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Hash</label>
+    <input type="text" name="hash" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Number of instances : </label>
+    <output id="num">1</output>
+    <input type="range" id="range" name="number" class="form-range" value="1" min="1" max="10" step="1"
+      oninput="num.value = this.value" required>
+  </div>
+  <a href="#" class="btn btn-secondary mb-3" role="button" id="filldetails" onclick="addFields()">Select</a>
+  <!-- JS Container -->
+  <div class="row" id="container"></div>
+  <!-- JS Container -->
+</form>
+
+{% endblock %}

@@ -1,14 +1,18 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
+from datetime import datetime
 from .models import User
-from . import db
+from .start import db
 
 auth = Blueprint('auth', __name__)
 
 @auth.route('/login')
 def login():
-    return render_template('login.html')
+    if current_user.is_authenticated:
+        return redirect("/dashboard", code=302)
+    else:
+        return render_template('login.html')
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -27,11 +31,14 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
-    return redirect(url_for('main.profile'))
+    return redirect(url_for('main.dashboard'))
 
 @auth.route('/signup')
 def signup():
-    return render_template('signup.html')
+    if current_user.is_authenticated:
+        return redirect("/dashboard", code=302)
+    else:
+        return render_template('signup.html')
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
@@ -47,7 +54,8 @@ def signup_post():
         return redirect(url_for('auth.signup'))
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
+    now = datetime.now()
+    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'), creation_date=now.strftime("%d/%m/%Y %H:%M:%S"))
 
     # add the new user to the database
     db.session.add(new_user)
@@ -59,9 +67,4 @@ def signup_post():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
-
-@auth.route('/testing')
-@login_required
-def testing():
-    return render_template('testing.html')
+    return redirect(url_for('auth.login'))
